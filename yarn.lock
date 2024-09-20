@@ -3027,6 +3027,11 @@ expo-keep-awake@~13.0.2:
   resolved "https://registry.yarnpkg.com/expo-keep-awake/-/expo-keep-awake-13.0.2.tgz#5ef31311a339671eec9921b934fdd90ab9652b0e"
   integrity sha512-kKiwkVg/bY0AJ5q1Pxnm/GvpeB6hbNJhcFsoOWDh2NlpibhCLaHL826KHUM+WsnJRbVRxJ+K9vbPRHEMvFpVyw==
 
+expo-linear-gradient@~13.0.2:
+  version "13.0.2"
+  resolved "https://registry.yarnpkg.com/expo-linear-gradient/-/expo-linear-gradient-13.0.2.tgz#21bd7bc7c71ef4f7c089521daa16db729d2aec5f"
+  integrity sha512-EDcILUjRKu4P1rtWcwciN6CSyGtH7Bq4ll3oTRV7h3h8oSzSilH1g6z7kTAMlacPBKvMnkkWOGzW6KtgMKEiTg==
+
 expo-modules-autolinking@1.11.2:
   version "1.11.2"
   resolved "https://registry.yarnpkg.com/expo-modules-autolinking/-/expo-modules-autolinking-1.11.2.tgz#98245eb66f157bbfebebd2d576256ea7c683c605"
@@ -3046,6 +3051,11 @@ expo-modules-core@1.12.24:
   integrity sha512-3geIe2ecizlp7l26iY8Nmc59z2d1RUC5nQZtI9iJoi5uHEUV/zut8e4zRLFVnZb8KOcMcEDsrvaBL5DPnqdfpg==
   dependencies:
     invariant "^2.2.4"
+
+expo-screen-orientation@~7.0.5:
+  version "7.0.5"
+  resolved "https://registry.yarnpkg.com/expo-screen-orientation/-/expo-screen-orientation-7.0.5.tgz#0a517982151c6519fa4b10ce27047de39c1f92cf"
+  integrity sha512-1j0MzVzYpjKQo4BWowQ3ZYwC3OnddX/8k06C8VYTAxMyd8ou1k+rG4tm+GIV2n2RSzc3g7cfPlQwSYr3/SGmbg==
 
 expo-status-bar@~1.12.1:
   version "1.12.1"
@@ -5288,14 +5298,13 @@ react-is@^17.0.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
-react-native-svg@^15.7.1:
-  version "15.7.1"
-  resolved "https://registry.yarnpkg.com/react-native-svg/-/react-native-svg-15.7.1.tgz#299bf5ff21fb355a0f4bedd4cb8f9f520725c4fe"
-  integrity sha512-Xc11L4t6/DtmUwrQqHR7S45Qy3cIWpcfGlmEatVeZ9c1N8eAK79heJmGRgCOVrXESrrLEHfP/AYGf0BGyrvV6A==
+react-native-svg@15.2.0:
+  version "15.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-svg/-/react-native-svg-15.2.0.tgz#9561a6b3bd6b44689f437ba13182afee33bd5557"
+  integrity sha512-R0E6IhcJfVLsL0lRmnUSm72QO+mTqcAOM5Jb8FVGxJqX3NfJMlMP0YyvcajZiaRR8CqQUpEoqrY25eyZb006kw==
   dependencies:
     css-select "^5.1.0"
     css-tree "^1.1.3"
-    warn-once "0.1.1"
 
 react-native@0.74.5:
   version "0.74.5"
@@ -6458,11 +6467,6 @@ walker@^1.0.7:
   integrity sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==
   dependencies:
     makeerror "1.0.12"
-
-warn-once@0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/warn-once/-/warn-once-0.1.1.tgz#952088f4fb56896e73fd4e6a3767272a3fccce43"
-  integrity sha512-VkQZJbO8zVImzYFteBXvBOZEl1qL175WH8VmZcxF2fZAoudNhNDvHi+doCaAEdU2l2vtcIwa2zn0QK5+I1HQ3Q==
 
 wcwidth@^1.0.1:
   version "1.0.1"

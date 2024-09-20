@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,15 @@ import {
   TouchableOpacity,
   Pressable,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { Audio } from 'expo-av';
 import { Svg, Rect } from 'react-native-svg';
 import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as ScreenOrientation from 'expo-screen-orientation';
+
+// Importation des fichiers audio
 import C_mp3 from './assets/notes/C.mp3';
 import Csharp_mp3 from './assets/notes/Csharp.mp3';
 import D_mp3 from './assets/notes/D.mp3';
@@ -39,14 +44,13 @@ import C3_mp3 from './assets/notes/C3.mp3';
 import Csharp3_mp3 from './assets/notes/Csharp3.mp3';
 import D3_mp3 from './assets/notes/D3.mp3';
 
-
-const screenWidth = Dimensions.get('window').width;
-
-
-const TOTAL_WIDTH = screenWidth * 0.9;
-const INPUT_WIDTH = TOTAL_WIDTH * 0.8; 
+// Dimensions de l'écran
+const { width: screenWidth } = Dimensions.get('window');
+const TOTAL_WIDTH = screenWidth * 0.95;
+const INPUT_WIDTH = TOTAL_WIDTH * 0.8;
 const BUTTON_WIDTH = TOTAL_WIDTH * 0.2;
 
+// Données des touches du piano
 const keysData = [
   { letter: 'A', note: 'C', file: C_mp3, type: 'white', index: 0 },
   { letter: 'B', note: 'C#', file: Csharp_mp3, type: 'black', whiteIndex: 0 },
@@ -74,18 +78,22 @@ const keysData = [
   { letter: 'X', note: 'B2', file: B2_mp3, type: 'white', index: 13 },
   { letter: 'Y', note: 'C3', file: C3_mp3, type: 'white', index: 14 },
   { letter: 'Z', note: 'C#3', file: Csharp3_mp3, type: 'black', whiteIndex: 14 },
-  { letter: ' ', note: 'D3', file: D3_mp3, type: 'white', index: 15 }, 
+  { letter: ' ', note: 'D3', file: D3_mp3, type: 'white', index: 15 },
 ];
 
 const numWhiteKeys = keysData.filter((key) => key.type === 'white').length;
-
 const WHITE_KEY_WIDTH = TOTAL_WIDTH / numWhiteKeys;
 const WHITE_KEY_HEIGHT = 200;
-const BLACK_KEY_WIDTH = WHITE_KEY_WIDTH * 0.6; 
+const BLACK_KEY_WIDTH = WHITE_KEY_WIDTH * 0.6;
 const BLACK_KEY_HEIGHT = WHITE_KEY_HEIGHT * 0.6;
 
 export default function App() {
   const [text, setText] = useState('');
+
+  useEffect(() => {
+    // Verrouiller l'orientation en paysage
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+  }, []);
 
   const playNote = async (file, letter) => {
     if (file) {
@@ -106,88 +114,119 @@ export default function App() {
   };
 
   return (
-    <View style={styles.appContainer}>
-      <View style={styles.textInputContainer}>
-        <TextInput
-          style={styles.input}
-          value={text}
-          placeholder="Joue les notes ici"
-          editable={false}
-        />
-        <TouchableOpacity onPress={clearText} style={styles.clearButton}>
-          <MaterialIcons name="delete" size={24} color="white" />
-        </TouchableOpacity>
+    <LinearGradient
+      colors={['#FFDEE9', '#B5FFFC']}
+      style={styles.linearGradient}
+    >
+      <View style={styles.container}>
+        {/* Titre */}
+        <Text style={styles.title}>🎵 Mélo-dire 🎶</Text>
+
+        {/* Zone de texte */}
+        <View style={styles.textInputContainer}>
+          <TextInput
+            style={styles.input}
+            value={text}
+            placeholder="Joue les notes ici"
+            editable={false}
+            placeholderTextColor="#888"
+          />
+          <TouchableOpacity onPress={clearText} style={styles.clearButton}>
+            <MaterialIcons name="delete" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Piano */}
+        <View style={styles.pianoContainer}>
+          {/* Touches Blanches */}
+          {keysData
+            .filter((key) => key.type === 'white')
+            .map((key) => (
+              <Pressable
+                key={`white-${key.index}`}
+                style={[
+                  styles.whiteKey,
+                  { left: key.index * WHITE_KEY_WIDTH },
+                ]}
+                onPress={() => playNote(key.file, key.letter)}
+              >
+                <Svg height={WHITE_KEY_HEIGHT} width={WHITE_KEY_WIDTH}>
+                  <Rect
+                    x="0"
+                    y="0"
+                    width={WHITE_KEY_WIDTH}
+                    height={WHITE_KEY_HEIGHT}
+                    fill="white"
+                    stroke="black"
+                    strokeWidth="2"
+                  />
+                </Svg>
+                <Text style={styles.letter}>{key.letter}</Text>
+              </Pressable>
+            ))}
+
+          {/* Touches Noires */}
+          {keysData
+            .filter((key) => key.type === 'black')
+            .map((key, idx) => (
+              <Pressable
+                key={`black-${key.whiteIndex}-${idx}`}
+                style={[
+                  styles.blackKey,
+                  {
+                    left:
+                      (key.whiteIndex + 1) * WHITE_KEY_WIDTH -
+                      BLACK_KEY_WIDTH / 2,
+                  },
+                ]}
+                onPress={() => playNote(key.file, key.letter)}
+              >
+                <Svg height={BLACK_KEY_HEIGHT} width={BLACK_KEY_WIDTH}>
+                  <Rect
+                    x="0"
+                    y="0"
+                    width={BLACK_KEY_WIDTH}
+                    height={BLACK_KEY_HEIGHT}
+                    fill="black"
+                  />
+                </Svg>
+                <Text style={styles.blackLetter}>{key.letter}</Text>
+              </Pressable>
+            ))}
+        </View>
       </View>
-      <View style={styles.pianoContainer}>
-        {keysData
-          .filter((key) => key.type === 'white')
-          .map((key) => (
-            <Pressable
-              key={`white-${key.index}`}
-              style={[
-                styles.whiteKey,
-                { left: key.index * WHITE_KEY_WIDTH },
-              ]}
-              onPress={() => playNote(key.file, key.letter)}
-            >
-              <Svg height={WHITE_KEY_HEIGHT} width={WHITE_KEY_WIDTH}>
-                <Rect
-                  x="0"
-                  y="0"
-                  width={WHITE_KEY_WIDTH}
-                  height={WHITE_KEY_HEIGHT}
-                  fill="white"
-                  stroke="black"
-                  strokeWidth="2"
-                />
-              </Svg>
-              <Text style={styles.letter}>{key.letter}</Text>
-            </Pressable>
-          ))}
-        {keysData
-          .filter((key) => key.type === 'black')
-          .map((key) => (
-            <Pressable
-              key={`black-${key.whiteIndex}`}
-              style={[
-                styles.blackKey,
-                {
-                  left:
-                    (key.whiteIndex + 1) * WHITE_KEY_WIDTH - BLACK_KEY_WIDTH / 2,
-                },
-              ]}
-              onPress={() => playNote(key.file, key.letter)}
-            >
-              <Svg height={BLACK_KEY_HEIGHT} width={BLACK_KEY_WIDTH}>
-                <Rect
-                  x="0"
-                  y="0"
-                  width={BLACK_KEY_WIDTH}
-                  height={BLACK_KEY_HEIGHT}
-                  fill="black"
-                />
-              </Svg>
-              <Text style={styles.blackLetter}>{key.letter}</Text>
-            </Pressable>
-          ))}
-      </View>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  appContainer: {
+  linearGradient: {
     flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'flex-end', 
+  },
+  container: {
+    flex: 1,
+    paddingTop: 50,
     alignItems: 'center',
-    paddingBottom: 20, 
+    justifyContent: 'flex-start',
+    paddingHorizontal: 10,
+  },
+  title: {
+    // Utilisation d'une police système avec des styles pour une apparence musicale
+    fontFamily: Platform.OS === 'ios' ? 'Avenir' : 'sans-serif',
+    fontSize: 40,
+    color: '#4B0082', // Indigo pour une meilleure visibilité
+    marginBottom: 20,
+    fontWeight: 'bold',
+    fontStyle: 'italic',
+    textShadowColor: '#000',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 5,
   },
   textInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-    width: TOTAL_WIDTH,
+    width: '100%',
     justifyContent: 'center',
   },
   input: {
@@ -198,15 +237,16 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     paddingHorizontal: 20,
     fontSize: 18,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
+    color: '#333',
   },
   clearButton: {
     marginLeft: 10,
     backgroundColor: '#ff4d4d',
     padding: 10,
     borderRadius: 25,
-    width: BUTTON_WIDTH - 20, 
+    width: BUTTON_WIDTH - 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -221,24 +261,28 @@ const styles = StyleSheet.create({
     width: WHITE_KEY_WIDTH,
     height: WHITE_KEY_HEIGHT,
     alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   blackKey: {
     position: 'absolute',
     width: BLACK_KEY_WIDTH,
     height: BLACK_KEY_HEIGHT,
     alignItems: 'center',
+    justifyContent: 'flex-end',
     zIndex: 1,
   },
   letter: {
     position: 'absolute',
     bottom: 5,
-    fontSize: 12,
+    fontSize: 14,
     color: 'black',
+    fontWeight: 'bold',
   },
   blackLetter: {
     position: 'absolute',
     bottom: 5,
     fontSize: 12,
     color: 'white',
+    fontWeight: 'bold',
   },
 });
