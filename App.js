@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, PanResponder } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ScrollView, Pressable } from 'react-native';
 import { Audio } from 'expo-av';
 import { Svg, Rect } from 'react-native-svg';
 
@@ -71,7 +71,6 @@ const keysData = [
 
 export default function App() {
   const [text, setText] = useState('');
-  const [pianoLayout, setPianoLayout] = useState(null);
 
   // Fonction pour jouer une note
   const playNote = async (file, letter) => {
@@ -88,62 +87,6 @@ export default function App() {
     }
   };
 
-  // Créer un PanResponder pour gérer les événements tactiles
-  const panResponder = PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onPanResponderGrant: (evt) => {
-      if (!pianoLayout) {
-        // Si le piano n'a pas encore été mesuré, ne rien faire
-        return;
-      }
-
-      const touchX = evt.nativeEvent.pageX;
-      const touchY = evt.nativeEvent.pageY;
-
-      // Ajuster touchX et touchY par rapport à la position du piano
-      const adjustedX = touchX - pianoLayout.x;
-      const adjustedY = touchY - pianoLayout.y;
-
-      // Vérifier si une touche noire est pressée
-      const blackKeyPressed = keysData.find((key) => {
-        if (key.type === 'black') {
-          const keyLeft = (key.whiteIndex + 1) * WHITE_KEY_WIDTH - BLACK_KEY_WIDTH / 2;
-          const keyRight = keyLeft + BLACK_KEY_WIDTH;
-          return (
-            adjustedX >= keyLeft &&
-            adjustedX <= keyRight &&
-            adjustedY >= 0 &&
-            adjustedY <= BLACK_KEY_HEIGHT
-          );
-        }
-        return false;
-      });
-
-      if (blackKeyPressed) {
-        playNote(blackKeyPressed.file, blackKeyPressed.letter);
-      } else {
-        // Vérifier quelle touche blanche est pressée
-        const whiteKeyPressed = keysData.find((key) => {
-          if (key.type === 'white') {
-            const keyLeft = key.index * WHITE_KEY_WIDTH;
-            const keyRight = keyLeft + WHITE_KEY_WIDTH;
-            return (
-              adjustedX >= keyLeft &&
-              adjustedX <= keyRight &&
-              adjustedY >= 0 &&
-              adjustedY <= WHITE_KEY_HEIGHT
-            );
-          }
-          return false;
-        });
-
-        if (whiteKeyPressed) {
-          playNote(whiteKeyPressed.file, whiteKeyPressed.letter);
-        }
-      }
-    },
-  });
-
   return (
     <ScrollView
       horizontal={true}
@@ -157,24 +100,18 @@ export default function App() {
           placeholder="Joue les notes ici"
           editable={false}
         />
-        <View
-          style={styles.pianoContainer}
-          {...panResponder.panHandlers}
-          onLayout={(event) => {
-            const layout = event.nativeEvent.layout;
-            setPianoLayout({
-              x: layout.x,
-              y: layout.y,
-            });
-          }}
-        >
+        <View style={styles.pianoContainer}>
           {/* Rendu des touches blanches */}
           {keysData
             .filter((key) => key.type === 'white')
             .map((key) => (
-              <View
+              <Pressable
                 key={`white-${key.index}`}
-                style={[styles.whiteKey, { left: key.index * WHITE_KEY_WIDTH }]}
+                style={[
+                  styles.whiteKey,
+                  { left: key.index * WHITE_KEY_WIDTH },
+                ]}
+                onPress={() => playNote(key.file, key.letter)}
               >
                 <Svg height={WHITE_KEY_HEIGHT} width={WHITE_KEY_WIDTH}>
                   <Rect
@@ -188,14 +125,14 @@ export default function App() {
                   />
                 </Svg>
                 <Text style={styles.letter}>{key.letter}</Text>
-              </View>
+              </Pressable>
             ))}
 
           {/* Rendu des touches noires */}
           {keysData
             .filter((key) => key.type === 'black')
             .map((key) => (
-              <View
+              <Pressable
                 key={`black-${key.whiteIndex}`}
                 style={[
                   styles.blackKey,
@@ -204,6 +141,7 @@ export default function App() {
                       (key.whiteIndex + 1) * WHITE_KEY_WIDTH - BLACK_KEY_WIDTH / 2,
                   },
                 ]}
+                onPress={() => playNote(key.file, key.letter)}
               >
                 <Svg height={BLACK_KEY_HEIGHT} width={BLACK_KEY_WIDTH}>
                   <Rect
@@ -215,7 +153,7 @@ export default function App() {
                   />
                 </Svg>
                 <Text style={styles.blackLetter}>{key.letter}</Text>
-              </View>
+              </Pressable>
             ))}
         </View>
       </View>
@@ -247,8 +185,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: BLACK_KEY_WIDTH,
     height: BLACK_KEY_HEIGHT,
-    zIndex: 1,
     alignItems: 'center',
+    zIndex: 1,
   },
   input: {
     height: 40,
@@ -265,9 +203,9 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   blackLetter: {
-    color: 'white',
     position: 'absolute',
     bottom: 5,
     fontSize: 12,
+    color: 'white',
   },
 });
