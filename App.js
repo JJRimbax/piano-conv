@@ -3,11 +3,11 @@ import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView } from 
 import { Audio } from 'expo-av';
 import { Svg, Rect } from 'react-native-svg';
 
-// Dimensions ajustées des touches pour que tout soit visible à l'écran et utilisables facilement
-const WHITE_KEY_WIDTH = 40;
-const WHITE_KEY_HEIGHT = 150;
-const BLACK_KEY_WIDTH = 30; // Augmenter la taille des touches noires
-const BLACK_KEY_HEIGHT = 100;
+// Dimensions des touches ajustées
+const WHITE_KEY_WIDTH = 50;
+const WHITE_KEY_HEIGHT = 200;
+const BLACK_KEY_WIDTH = 30; 
+const BLACK_KEY_HEIGHT = 120;
 
 // Notes associées aux fichiers et aux lettres
 const notes = [
@@ -40,6 +40,9 @@ const notes = [
   { letter: ' ', note: 'D3', file: require('./assets/notes/D3.mp3'), isBlack: false }, // Touche espace
 ];
 
+// Indices des touches noires dans une octave
+const blackKeyPositions = [1, 3, 6, 8, 10];
+
 export default function App() {
   const [text, setText] = useState(''); // État pour le TextInput
 
@@ -69,33 +72,53 @@ export default function App() {
           placeholder="Joue les notes ici"
           editable={false} // Non modifiable directement
         />
+        {/* Container des touches blanches */}
         <View style={styles.pianoContainer}>
           {notes.map((note, index) => (
-            <View key={`key-${index}`} style={{ position: 'relative' }}>
-              {/* Touche blanche ou noire */}
-              <TouchableOpacity
-                onPress={() => playNote(note.file, note.letter)}
-              >
-                <Svg
-                  height={note.isBlack ? BLACK_KEY_HEIGHT : WHITE_KEY_HEIGHT}
-                  width={note.isBlack ? BLACK_KEY_WIDTH : WHITE_KEY_WIDTH}
-                >
+            !note.isBlack && (
+              <TouchableOpacity key={`white-${index}`} onPress={() => playNote(note.file, note.letter)}>
+                <Svg height={WHITE_KEY_HEIGHT} width={WHITE_KEY_WIDTH}>
                   <Rect
                     x="0"
                     y="0"
-                    width={note.isBlack ? BLACK_KEY_WIDTH : WHITE_KEY_WIDTH}
-                    height={note.isBlack ? BLACK_KEY_HEIGHT : WHITE_KEY_HEIGHT}
-                    fill={note.isBlack ? 'black' : 'white'}
+                    width={WHITE_KEY_WIDTH}
+                    height={WHITE_KEY_HEIGHT}
+                    fill="white"
                     stroke="black"
                     strokeWidth="2"
                   />
                 </Svg>
-                {/* Afficher la lettre sur chaque touche */}
-                <Text style={[styles.letter, note.isBlack && styles.blackLetter]}>
-                  {note.letter}
-                </Text>
+                <Text style={styles.letter}>{note.letter}</Text>
               </TouchableOpacity>
-            </View>
+            )
+          ))}
+        </View>
+        {/* Container des touches noires */}
+        <View style={styles.blackKeyContainer}>
+          {notes.map((note, index) => (
+            note.isBlack && blackKeyPositions.includes(index % 12) && (
+              <View
+                key={`black-${index}`}
+                style={{
+                  ...styles.blackKey,
+                  // Ajuster la position des touches noires pour qu'elles soient rapprochées
+                  left: WHITE_KEY_WIDTH * (index - 0.35),
+                }}
+              >
+                <TouchableOpacity onPress={() => playNote(note.file, note.letter)}>
+                  <Svg height={BLACK_KEY_HEIGHT} width={BLACK_KEY_WIDTH}>
+                    <Rect
+                      x="0"
+                      y="0"
+                      width={BLACK_KEY_WIDTH}
+                      height={BLACK_KEY_HEIGHT}
+                      fill="black"
+                    />
+                  </Svg>
+                  <Text style={styles.blackLetter}>{note.letter}</Text>
+                </TouchableOpacity>
+              </View>
+            )
           ))}
         </View>
       </View>
@@ -116,8 +139,18 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   pianoContainer: {
-    flexDirection: 'row', // Affichage en rangée pour le piano
+    flexDirection: 'row',
     alignItems: 'flex-end',
+  },
+  blackKeyContainer: {
+    position: 'absolute',
+    left: 10,
+    top: 70, // Superposé en haut des touches blanches
+    flexDirection: 'row',
+    zIndex: 1,
+  },
+  blackKey: {
+    position: 'absolute',
   },
   input: {
     height: 40,
@@ -135,6 +168,10 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   blackLetter: {
-    color: 'white', // Lettres blanches sur touches noires
+    color: 'white',
+    position: 'absolute',
+    bottom: 5,
+    left: '35%',
+    fontSize: 12,
   },
 });
